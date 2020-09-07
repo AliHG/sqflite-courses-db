@@ -60,6 +60,7 @@ class _NewCourseState extends State<NewCourse> {
                   int id = await helper.insertCourse(course);
                   // int id  = await DatabaseHelper.instance.insertCourse(course);
                   debugPrint('last inserted record id is: $id');
+                  setState(() {});
                   Navigator.pop(context);
                 },
               )

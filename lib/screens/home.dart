@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../model/course.dart';
@@ -10,7 +12,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Future _coursesFuture;
+  Future<List<Map<String, dynamic>>> _coursesFuture;
 
   DatabaseHelper helper = DatabaseHelper.instance;
 
@@ -47,12 +49,40 @@ class _HomeState extends State<Home> {
       body: FutureBuilder(
         future: _coursesFuture,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
+          // switch (snapshot.connectionState) {
+          //   case ConnectionState.done:
+          //     return ListView.builder(
+          //         key: UniqueKey(),
+          //         itemCount: snapshot.data.length,
+          //         itemBuilder: (context, index) {
+          //           Course course = Course.fromMap(snapshot.data[index]);
+          //           return ListTile(
+          //             title: Text('${course.name} - ${course.hours} Hours'),
+          //             subtitle: Text(course.content),
+          //             trailing: IconButton(
+          //                 icon: Icon(Icons.delete),
+          //                 color: Colors.red,
+          //                 onPressed: () {
+          //                   setState(() {
+          //                     helper.deleteCourse(course.id);
+          //                   });
+          //                 }),
+          //           );
+          //         });
+          //   case ConnectionState.none:
+          //   case ConnectionState.waiting:
+          //   case ConnectionState.active:
+          //   default:
+          //     return Center(child: CircularProgressIndicator());
+          // }
+
           if (snapshot.hasData) {
             return ListView.builder(
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
                   Course course = Course.fromMap(snapshot.data[index]);
                   return ListTile(
+                    key: UniqueKey(),
                     title: Text('${course.name} - ${course.hours} Hours'),
                     subtitle: Text(course.content),
                     trailing: IconButton(
