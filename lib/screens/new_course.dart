@@ -9,7 +9,9 @@ class NewCourse extends StatefulWidget {
 }
 
 class _NewCourseState extends State<NewCourse> {
-  String name, content;
+  TextEditingController tEName = TextEditingController();
+  TextEditingController tElevel = TextEditingController();
+  String content;
   int hours;
 
   DatabaseHelper helper = DatabaseHelper.instance;
@@ -22,20 +24,26 @@ class _NewCourseState extends State<NewCourse> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Form(
-          child: Column(
+          child: ListView(
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(hintText: 'Enter Course name'),
-                onChanged: (value) {
-                  name = value;
-                },
+                controller: tEName,
+                decoration: InputDecoration(
+                  labelText: 'Course name',
+                ),
+                // onChanged: (value) {
+                //   name = value;
+                // },
               ),
               SizedBox(
                 height: 15,
               ),
               TextFormField(
                 maxLines: 10,
-                decoration: InputDecoration(hintText: 'Enter Course Content'),
+                decoration: InputDecoration(
+                  hintText: 'Enter Course Content',
+                  labelText: 'Course content',
+                ),
                 onChanged: (value) {
                   content = value;
                 },
@@ -44,8 +52,18 @@ class _NewCourseState extends State<NewCourse> {
                 height: 15,
               ),
               TextFormField(
+                controller: tElevel,
+                decoration: InputDecoration(
+                  labelText: 'Course Level',
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              TextFormField(
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(hintText: 'Enter Course hours'),
+                decoration: InputDecoration(
+                    labelText: 'Course Hours', hintText: 'Enter Course hours'),
                 onChanged: (value) {
                   hours = int.parse(value);
                 },
@@ -56,11 +74,9 @@ class _NewCourseState extends State<NewCourse> {
               RaisedButton(
                 child: Text('Save'),
                 onPressed: () async {
-                  Course course = Course(name, content, hours);
-                  int id = await helper.insertCourse(course);
-                  // int id  = await DatabaseHelper.instance.insertCourse(course);
-                  debugPrint('last inserted record id is: $id');
-                  setState(() {});
+                  Course course =
+                      Course(tEName.text, content, hours, tElevel.text);
+                  await helper.insertCourse(course);
                   Navigator.pop(context);
                 },
               )

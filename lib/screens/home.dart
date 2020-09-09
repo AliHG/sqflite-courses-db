@@ -1,10 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
+import 'new_course.dart';
+import 'course_detail.dart';
+import 'course_update.dart';
 import '../model/course.dart';
 import '../utils/database_helper.dart';
-import 'new_course.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,7 +19,10 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    _coursesFuture = getAllCourses();
+  }
 
+  void updateCourses() {
     _coursesFuture = getAllCourses();
   }
 
@@ -35,13 +38,12 @@ class _HomeState extends State<Home> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {
-              return Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NewCourse(),
-                ),
-              );
+            onPressed: () async {
+              await Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => NewCourse()));
+              setState(() {
+                updateCourses();
+              });
             },
           )
         ],
@@ -78,22 +80,63 @@ class _HomeState extends State<Home> {
 
           if (snapshot.hasData) {
             return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  Course course = Course.fromMap(snapshot.data[index]);
-                  return ListTile(
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index) {
+                Course course = Course.fromMap(snapshot.data[index]);
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  child: ListTile(
                     key: UniqueKey(),
-                    title: Text('${course.name} - ${course.hours} Hours'),
-                    subtitle: Text(course.content),
-                    trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            helper.deleteCourse(course.id);
-                          });
-                        }),
-                  );
-                });
+                    title: Text(
+                        '${course.name} - Level: ${course.level} - ${course.hours} Hours'),
+                    subtitle: Text(course.content.length > 200
+                        ? course.content.substring(0, 200)
+                        : course.content),
+                    trailing: Column(
+                      children: [
+                        Expanded(
+                          child: IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  helper.deleteCourse(course.id);
+                                  updateCourses();
+                                });
+                              }),
+                        ),
+                        Expanded(
+                          child: IconButton(
+                              icon: Icon(
+                                Icons.edit,
+                                color: Colors.green,
+                              ),
+                              onPressed: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CourseUpdate(course),
+                                  ),
+                                );
+                                setState(() {
+                                  updateCourses();
+                                });
+                              }),
+                        ),
+                      ],
+                    ),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CourseDetails(course),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
           } else {
             return Center(
               child: CircularProgressIndicator(),

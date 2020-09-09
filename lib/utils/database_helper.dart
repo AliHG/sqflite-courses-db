@@ -27,8 +27,9 @@ class DatabaseHelper {
   String coursesTable = 'courses';
   String colId = 'id';
   String colName = 'name';
-  String colContent = 'content';
   String colHours = 'hours';
+  String colContent = 'content';
+  String colLevel = 'level';
 
   Future<Database> get database async {
     if (_database == null) {
@@ -44,8 +45,9 @@ class DatabaseHelper {
     //open the database
     _database = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
     return _database;
   }
@@ -54,6 +56,13 @@ class DatabaseHelper {
     await db.execute(
         'create table $coursesTable($colId INTEGER PRIMARY KEY AUTOINCREMENT,'
         '$colName TEXT , $colContent varchar(255), $colHours integer )');
+  }
+
+  void _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < newVersion) {
+      await db.execute(
+          'ALTER TABLE $coursesTable ADD column $colLevel varchar(50)');
+    }
   }
 
 // Insert Operation: Insert a course object to database
@@ -71,6 +80,13 @@ class DatabaseHelper {
     // });
 
     return db.insert(coursesTable, course.toMap());
+  }
+
+  Future<int> updateCourse(Course course) async {
+    Database db = await this.database;
+
+    return await db.update(coursesTable, course.toMap(),
+        where: 'id = ?', whereArgs: [course.id]);
   }
 
 // Select Operation: Get all course objects from database
