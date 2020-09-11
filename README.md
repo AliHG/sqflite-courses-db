@@ -1,7 +1,8 @@
 # sqflite_courses
 
-A new Flutter project.
-
+A new Flutter project. 
+getting data from a Local SQLITE database and displaying it in a futueBuilder
+also search and filtering throw that data 
 ## Getting Started
 
 This project is a starting point for a Flutter application.
